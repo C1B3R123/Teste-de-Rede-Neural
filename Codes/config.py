@@ -27,4 +27,4 @@ OUTPUT_NEURONS = 3 # Número de saídas (Virar Esquerda, Direita, Seguir Reto)
 BEST_NN_FILE = "best_snake_nn.pkl"
 
 # Velocidade de exibição para a IA (FPS)
-VELOCIDADE_IA_DISPLAY = 30
+VELOCIDADE_IA_DISPLAY = 60
