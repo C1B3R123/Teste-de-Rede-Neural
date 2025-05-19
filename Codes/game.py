@@ -1,7 +1,6 @@
 import pygame
 import time
 import numpy as np
-# Importa classes e configurações de outros arquivos
 from snake import Snake
 from food import Food
 from neural_network import NeuralNetwork
@@ -18,12 +17,12 @@ class Game:
 
         self.snake = Snake()
         self.food = Food()
-        self.food.spawn(self.snake.get_body_pos()) # Spawna a primeira comida
+        self.food.spawn(self.snake.get_body_pos()) 
 
         self.use_ai = use_ai
-        self.nn_model = nn_model # A rede neural que controlará a cobra (se use_ai=True)
-        self.speed = speed # Velocidade do jogo (FPS)
-        self.game_over = False # Adicionado para controle do loop principal
+        self.nn_model = nn_model 
+        self.speed = speed
+        self.game_over = False 
 
     def _draw_score(self):
         value = self.score_font.render("Pontuação: " + str(self.snake.score), True, BRANCO)
@@ -47,7 +46,7 @@ class Game:
 
         # Espera um pouco antes de mostrar a opção de reiniciar/sair
         start_time = time.time()
-        while time.time() - start_time < 3: # Espera 3 segundos
+        while time.time() - start_time < 3: 
              for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
@@ -69,31 +68,30 @@ class Game:
         inputs = self.snake.get_state_for_nn(self.food.get_pos())
 
         # Passa as entradas pela rede neural
-        outputs = self.nn_model.forward(inputs) # outputs é um array numpy de shape (1, 3)
+        outputs = self.nn_model.forward(inputs) 
 
         # Interpreta a saída para decidir o movimento
         # Encontra o índice da saída com o maior valor
-        decision_index = np.argmax(outputs[0]) # outputs[0] é a única linha (1D array)
+        decision_index = np.argmax(outputs[0])
 
         # Mapeia o índice para uma ação: 0=Reto, 1=Esquerda, 2=Direita
-        # Calcula a nova direção baseada na decisão e direção atual
         current_direction = self.snake.direction
 
-        if decision_index == 0: # Seguir Reto
+        if decision_index == 0:
             new_direction = current_direction
-        elif decision_index == 1: # Virar para a Esquerda (90 graus relativo)
+        elif decision_index == 1:
             if current_direction == CIMA: new_direction = ESQUERDA
             elif current_direction == BAIXO: new_direction = DIREITA
             elif current_direction == ESQUERDA: new_direction = BAIXO
             elif current_direction == DIREITA: new_direction = CIMA
-            else: new_direction = current_direction # Caso inicial ou inesperado
-        elif decision_index == 2: # Virar para a Direita (90 graus relativo)
+            else: new_direction = current_direction
+        elif decision_index == 2:
             if current_direction == CIMA: new_direction = DIREITA
             elif current_direction == BAIXO: new_direction = ESQUERDA
             elif current_direction == ESQUERDA: new_direction = CIMA
             elif current_direction == DIREITA: new_direction = BAIXO
-            else: new_direction = current_direction # Caso inicial ou inesperado
-        else: # Caso inesperado, manter direção (não deve acontecer com argmax)
+            else: new_direction = current_direction 
+        else: 
              new_direction = current_direction
              print(f"AVISO: Saída inesperada da NN: {outputs}")
 
@@ -105,12 +103,12 @@ class Game:
         game_exit = False
 
         while not game_exit:
-            if self.snake.is_alive: # Loop de jogo enquanto a cobra está viva
-                # --- Eventos (apenas para controle humano ou para sair) ---
+            if self.snake.is_alive:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         game_exit = True
-                    if not self.use_ai and event.type == pygame.KEYDOWN: # Captura teclas APENAS se não estiver usando IA
+                        #Controle Manual
+                    if not self.use_ai and event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_LEFT:
                             self.snake.change_direction(ESQUERDA)
                         elif event.key == pygame.K_RIGHT:
@@ -119,46 +117,29 @@ class Game:
                             self.snake.change_direction(CIMA)
                         elif event.key == pygame.K_DOWN:
                             self.snake.change_direction(BAIXO)
-
-                # --- Lógica da IA ---
-                if self.use_ai and self.nn_model: # Se usando IA e tem um modelo
+                if self.use_ai and self.nn_model:
                     self._get_ai_decision()
-
-                # --- Movimentação e Colisões ---
                 self.snake.move()
 
                 if self.snake.check_collision():
-                    # O is_alive da cobra já foi setado para False na colisão
-                    pass # O loop principal vai para a tela de Game Over
-
-                # Verifica se comeu a comida
+                    pass
                 if self.snake.get_head_pos() == self.food.get_pos():
-                    self.food.spawn(self.snake.get_body_pos()) # Nova comida
-                    self.snake.ate_comida() # Cobra cresce
-                    # A pontuação já é atualizada dentro do método ate_comida da cobra
+                    self.food.spawn(self.snake.get_body_pos())
+                    self.snake.ate_comida() 
+                self.screen.fill(PRETO) 
+                self.food.draw(self.screen) 
+                self.snake.draw(self.screen) 
+                self._draw_score()
+                pygame.display.update() 
+                self.clock.tick(self.speed) 
 
-                # --- Desenhar na Tela ---
-                self.screen.fill(PRETO) # Fundo preto
-                self.food.draw(self.screen) # Desenha comida
-                self.snake.draw(self.screen) # Desenha cobra
-                self._draw_score() # Desenha pontuação
-
-                pygame.display.update() # Atualiza a tela
-
-                # --- Controle de Velocidade ---
-                self.clock.tick(self.speed) # Controla o FPS/velocidade
-
-            else: # Se a cobra não está mais viva
+            else:
                 action = self._game_over_screen()
                 if action == "quit":
                     game_exit = True
                 elif action == "restart":
-                    # Reinicia o jogo criando uma nova instância da classe Game
-                    # Mantém a mesma configuração de IA/velocidade/NN
                     self.__init__(use_ai=self.use_ai, nn_model=self.nn_model, speed=self.speed)
-                    # Não precisamos de uma flag de reinício aqui, o loop while not game_exit
-                    # continuará com a nova instância do jogo.
-                    pass # Continua no loop externo com a nova instância
+                    pass
 
-        pygame.quit() # Sai do pygame
-        # quit() # Deixamos o script Python sair naturalmente
+        pygame.quit() 
+        quit() 
