@@ -24,7 +24,7 @@ HIDDEN_NEURONS = 16
 OUTPUT_NEURONS = 3
 
 # Nome do arquivo para salvar/carregar a melhor rede neural
-BEST_NN_FILE = "best_snake_nn.pkl"
+BEST_NN_FILE = "best_gen_snk.pkl"
 
 # Velocidade de exibição para a IA (FPS)
 VELOCIDADE_IA_DISPLAY = 60
