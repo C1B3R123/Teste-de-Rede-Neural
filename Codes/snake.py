@@ -1,16 +1,15 @@
 import pygame
 from collections import deque
 import numpy as np
-# Importa configurações do arquivo config.py
 from config import TAMANHO_BLOCO, LARGURA_TELA, ALTURA_TELA, VERDE, CIMA, BAIXO, ESQUERDA, DIREITA, INPUT_NEURONS
 
 class Snake:
     def __init__(self):
-        self.body = deque([(LARGURA_TELA // 2, ALTURA_TELA // 2)]) # Começa no centro
-        self.direction = DIREITA # Começa indo para a direita
+        self.body = deque([(LARGURA_TELA // 2, ALTURA_TELA // 2)]) 
+        self.direction = DIREITA 
         self.grow = False
         self.score = 0
-        self.lifespan = 0 # Usado para o fitness na IA
+        self.lifespan = 0
         self.is_alive = True
 
     def change_direction(self, new_direction):
@@ -25,29 +24,26 @@ class Snake:
         head_x, head_y = self.body[0]
         dir_x, dir_y = self.direction
         new_head = (head_x + dir_x * TAMANHO_BLOCO, head_y + dir_y * TAMANHO_BLOCO)
-        self.body.appendleft(new_head) # Adiciona a nova cabeça
+        self.body.appendleft(new_head) 
 
         if not self.grow:
-            self.body.pop() # Remove a cauda apenas se não for crescer
+            self.body.pop() 
         else:
             self.grow = False
 
-        self.lifespan += 1 # Aumenta o tempo de vida a cada movimento
-
+        self.lifespan += 1
     def ate_comida(self):
         self.grow = True
         self.score += 1
 
     def check_collision(self):
         if not self.is_alive:
-            return False # Já está morta
-
+            return False 
+            
         head = self.body[0]
-        # Colisão com a parede
         if head[0] >= LARGURA_TELA or head[0] < 0 or head[1] >= ALTURA_TELA or head[1] < 0:
             self.is_alive = False
             return True
-        # Colisão com o próprio corpo (começando do 2º segmento)
         if len(self.body) > 1 and head in list(self.body)[1:]:
              self.is_alive = False
              return True
@@ -65,14 +61,14 @@ class Snake:
     def get_body_pos(self):
         return list(self.body)
 
-    # --- Métodos para a IA ---
+    # Métodos para a IA 
     def get_state_for_nn(self, food_pos):
-        # Esta função coleta as informações do jogo (sensores) para alimentar a rede neural
+        # Esta função coleta as informações do jogo para alimentar a rede neural
         head_x, head_y = self.get_head_pos()
         food_x, food_y = food_pos
         current_direction = self.direction
 
-        # Define as direções relativas (em relação à direção atual da cobra)
+        # Define as direções relativas em relação à direção atual da cobra
         if current_direction == DIREITA:
             ahead = DIREITA
             left = CIMA
@@ -85,25 +81,23 @@ class Snake:
             ahead = CIMA
             left = ESQUERDA
             right = DIREITA
-        else: # current_direction == BAIXO
+        else:
             ahead = BAIXO
             left = DIREITA
             right = ESQUERDA
 
-        # --- Sensores de Perigo (Parede ou Corpo) ---
-        # Verifica se há perigo em uma unidade de TAMANHO_BLOCO nas direções relativas
+        #  Sensores de Perigo (Parede ou Corpo) 
+        
         danger_ahead = self._is_danger(head_x + ahead[0] * TAMANHO_BLOCO, head_y + ahead[1] * TAMANHO_BLOCO)
         danger_left = self._is_danger(head_x + left[0] * TAMANHO_BLOCO, head_y + left[1] * TAMANHO_BLOCO)
         danger_right = self._is_danger(head_x + right[0] * TAMANHO_BLOCO, head_y + right[1] * TAMANHO_BLOCO)
-
-        # --- Localização da Comida ---
-        # Direção da comida em relação à cabeça da cobra (binário)
+        # Direção da comida em relação à cabeça da cobra 
         food_up = int(food_y < head_y)
         food_down = int(food_y > head_y)
         food_left = int(food_x < head_x)
         food_right = int(food_x > head_x)
 
-        # --- Direção Atual ---
+        # Direção Atual 
         dir_left = int(current_direction == ESQUERDA)
         dir_right = int(current_direction == DIREITA)
         dir_up = int(current_direction == CIMA)
@@ -128,22 +122,11 @@ class Snake:
 
     def _is_danger(self, x, y):
         # Verifica se uma posição (x, y) representa perigo (parede ou corpo)
-        # Colisão com a parede?
         if x >= LARGURA_TELA or x < 0 or y >= ALTURA_TELA or y < 0:
-            return 1 # Sim, é perigo
-        # Colisão com o corpo?
-        # Verifica se a posição (x, y) está em algum segmento do corpo
-        # Excluímos a própria cabeça se a posição for a da cabeça, para evitar detecção instantânea
+            return 1 
         if (x, y) in list(self.body):
-            return 1 # Sim, é perigo
-        return 0 # Não, não é perigo
+            return 1
+        return 0 
 
     def get_fitness(self):
-        # Função de fitness para o algoritmo genético
-        # Pontuação alta e tempo de vida longo são bons
-        # Uma fórmula comum é score * C1 + lifespan * C2
-        # C1 >> C2 para priorizar comida sobre simplesmente sobreviver sem comer
-        # Também podemos adicionar uma penalidade por se aproximar da comida sem pegá-la,
-        # ou um bônus por pegar comida rápido.
-        # Para uma IA básica, score * 100 + lifespan funciona como ponto de partida.
         return self.score * 100 + self.lifespan
