@@ -46,7 +46,3 @@ class NeuralNetwork:
         else:
             print(f"Arquivo {filename} não encontrado.")
             return False
-
-# Função de ativação sigmoid (opcional, dependendo da saída desejada)
-# def sigmoid(x):
-#     return 1 / (1 + np.exp(-x))
