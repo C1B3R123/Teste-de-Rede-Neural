@@ -19,9 +19,9 @@ DIREITA = (1, 0)
 DIRECOES_POSSIVEIS = [CIMA, BAIXO, ESQUERDA, DIREITA]
 
 # --- Configurações da Rede Neural ---
-INPUT_NEURONS = 11 # Número de entradas para a rede neural (sensores + estado)
-HIDDEN_NEURONS = 16 # Número de neurônios na camada oculta
-OUTPUT_NEURONS = 3 # Número de saídas (Virar Esquerda, Direita, Seguir Reto)
+INPUT_NEURONS = 11 
+HIDDEN_NEURONS = 16
+OUTPUT_NEURONS = 3
 
 # Nome do arquivo para salvar/carregar a melhor rede neural
 BEST_NN_FILE = "best_snake_nn.pkl"
