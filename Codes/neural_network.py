@@ -1,7 +1,6 @@
 import numpy as np
 import pickle
 import os
-# Importa configurações do arquivo config.py
 from config import INPUT_NEURONS, HIDDEN_NEURONS, OUTPUT_NEURONS
 
 class NeuralNetwork:
@@ -10,25 +9,21 @@ class NeuralNetwork:
         self.hidden_size = hidden_size
         self.output_size = output_size
 
-        # Inicializa pesos e vieses com valores aleatórios pequenos
         self.W1 = np.random.randn(self.input_size, self.hidden_size) * 0.01
         self.b1 = np.zeros((1, self.hidden_size))
         self.W2 = np.random.randn(self.hidden_size, self.output_size) * 0.01
         self.b2 = np.zeros((1, self.output_size))
 
     def forward(self, inputs):
-        # Implementa o passo feedforward da rede neural
         z1 = np.dot(inputs, self.W1) + self.b1
-        a1 = np.maximum(0, z1) # Função de ativação ReLU
+        a1 = np.maximum(0, z1) 
         z2 = np.dot(a1, self.W2) + self.b2
         return z2
 
     def get_weights(self):
-        # Retorna os pesos e vieses da rede (os "genes" da cobra)
         return (self.W1, self.b1, self.W2, self.b2)
 
     def set_weights(self, weights):
-        # Define os pesos e vieses da rede
         W1, b1, W2, b2 = weights
         self.W1 = W1
         self.b1 = b1
@@ -42,7 +37,6 @@ class NeuralNetwork:
         print(f"Rede neural salva em {filename}")
 
     def load(self, filename):
-        # Carrega os pesos da rede de um arquivo
         if os.path.exists(filename):
             with open(filename, 'rb') as f:
                 weights = pickle.load(f)
