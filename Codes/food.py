@@ -7,7 +7,6 @@ class Food:
     def __init__(self):
         self.position = (0, 0)
         # A comida será spawnada pela classe Game ou GeneticAlgorithmManager
-
     def spawn(self, snake_body):
         while True:
             x = random.randrange(0, LARGURA_TELA // TAMANHO_BLOCO) * TAMANHO_BLOCO
