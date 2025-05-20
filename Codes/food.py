@@ -1,23 +1,25 @@
+# File: food.py
+
 import pygame
 import random
-# Importa configurações do arquivo config.py
-from config import TAMANHO_BLOCO, LARGURA_TELA, ALTURA_TELA, AZUL
+# Import settings from config.py
+from config import BLOCK_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, BLUE
 
 class Food:
     def __init__(self):
         self.position = (0, 0)
-        # A comida será spawnada pela classe Game ou GeneticAlgorithmManager
-    def spawn(self, snake_body):
+
+    def spawn(self, occupied_positions):
         while True:
-            x = random.randrange(0, LARGURA_TELA // TAMANHO_BLOCO) * TAMANHO_BLOCO
-            y = random.randrange(0, ALTURA_TELA // TAMANHO_BLOCO) * TAMANHO_BLOCO
+            x = random.randrange(0, SCREEN_WIDTH // BLOCK_SIZE) * BLOCK_SIZE
+            y = random.randrange(0, SCREEN_HEIGHT // BLOCK_SIZE) * BLOCK_SIZE
             self.position = (x, y)
-            # Garante que a comida não aparece DENTRO da cobra
-            if self.position not in snake_body:
+            # Ensures food does not spawn INSIDE any snake
+            if self.position not in occupied_positions:
                 break
 
     def draw(self, screen):
-        pygame.draw.rect(screen, AZUL, [self.position[0], self.position[1], TAMANHO_BLOCO, TAMANHO_BLOCO])
+        pygame.draw.rect(screen, BLUE, [self.position[0], self.position[1], BLOCK_SIZE, BLOCK_SIZE])
 
     def get_pos(self):
         return self.position
